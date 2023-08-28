@@ -1,4 +1,4 @@
-import MainNav from "@/components/MainNav";
+import MainNav from "@/components/main-nav";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
