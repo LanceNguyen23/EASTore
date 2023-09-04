@@ -14,19 +14,19 @@ const ImageUpload = ({
   value: string[];
   disabled: boolean;
   onChange: (url: string) => void;
-  onRemove: () => void;
+  onRemove: (url: string) => void;
 }) => {
   const onUpload = (result: any) => {
     onChange(result.info.secure_url);
   };
   return (
     <div className="">
-      <div className="mb-4">
+      <div className="mb-4 flex flex-row items-center gap-4 flex-wrap">
         {value.map((url) => (
           <div className="relative w-[200px] h-[200px] rounded-md overflow-hidden border-gray-950 border-2 bg-[#e8e3ee]" key={url}>
             <div className="absolute z-10 top-2 right-2">
                 <Button type="button" size='icon' variant="destructive" disabled={disabled}>
-                    <Trash onClick={onRemove}/>
+                    <Trash onClick={() => onRemove(url)}/>
                 </Button>
             </div>
             <Image src={url} alt="billboard image" fill className="object-contain"/>

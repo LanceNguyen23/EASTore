@@ -16,7 +16,6 @@ const DashboardLayout = async({
   if (!session?.user) {
     redirect("/sign-in");
   }
-  console.log("3")
   return (
     <div className=" h-screen">
       <MainNav />

@@ -9,73 +9,71 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import ImageUpload from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as z from "zod";
-import { BillBoard } from "@prisma/client";
+import { Color } from "@prisma/client";
 import { useState } from "react";
 import { Trash } from "lucide-react";
 import AlertModal from "@/components/modals/alert-modal";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
-  label: z.string().min(1, {
-    message: "Label must be at least 1 characters.",
-  }),
-  imageUrl: z.string().min(1),
+  name: z.string().min(1),
+  value: z.string().min(1),
 });
 
-type BillboardFormValues = z.infer<typeof formSchema>;
+type ColorFormValues = z.infer<typeof formSchema>;
 
-const BillboardForm = ({ data }: { data: BillBoard | null }) => {
+const ColorForm = ({ data }: { data: Color | null }) => {
   const router = useRouter();
   const params = useParams();
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const form = useForm<BillboardFormValues>({
+  const form = useForm<ColorFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: data || {
-      label: "",
-      imageUrl: "",
+      name: "",
+      value: "",
     },
   });
 
-  const onSubmit = async (values: BillboardFormValues) => {
+  const onSubmit = async (values: ColorFormValues) => {
     try {
       setLoading(true);
       if (!data) {
-        const response = await fetch(`/api/${params.storeId}/billboards`, {
+        const response = await fetch(`/api/${params.storeId}/colors`, {
           method: "POST",
           body: JSON.stringify({
-            label: values.label,
-            imageUrl: values.imageUrl,
+            name: values.name,
+            value: values.value,
           }),
         });
         if (!response.ok) {
-          throw new Error("Error post billboard", { cause: response });
+          throw new Error("Error post color", { cause: response });
         }
-        toast.success("Billboard created!!! 🎉🎉");
+        toast.success("Color created!!! 🎉🎉");
       } else {
         const response = await fetch(
-          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          `/api/${params.storeId}/colors/${params.colorId}`,
           {
             method: "PATCH",
             body: JSON.stringify({
-              label: values.label,
-              imageUrl: values.imageUrl,
+              name: values.name,
+              value: values.value,
             }),
           }
         );
         if (!response.ok) {
-          throw new Error("Error patch billboard", { cause: response });
+          throw new Error("Error patch color", { cause: response });
         }
-        toast.success("Billboard edited!!! 🎉🎉");
+        toast.success("Color edited!!! 🎉🎉");
       }
-      router.push(`/${params.storeId}/billboards`);
+      router.push(`/${params.storeId}/colors`);
       router.refresh();
     } catch (error) {
       toast.error("Something went wrong");
@@ -89,24 +87,22 @@ const BillboardForm = ({ data }: { data: BillBoard | null }) => {
     try {
       setLoading(true);
       const response = await fetch(
-        `/api/${params.storeId}/billboards/${params.billboardId}`,
+        `/api/${params.storeId}/colors/${params.colorId}`,
         {
           method: "DELETE",
         }
       );
 
       if (!response.ok) {
-        throw new Error("Error fetching billboard", { cause: response });
+        throw new Error("Error fetching color", { cause: response });
       }
 
-      router.push(`/${params.storeId}/billboards/`);
+      router.push(`/${params.storeId}/colors/`);
       setIsOpen(false);
-      toast.success("Billboard deleted!!! 🎉🎉");
+      toast.success("Color deleted!!! 🎉🎉");
       router.refresh();
     } catch (error) {
-      toast.error(
-        "Make sure you removed all categories using this billboard first."
-      );
+      toast.error("Something went wrong");
       console.log(error);
     } finally {
       setLoading(false);
@@ -121,32 +117,37 @@ const BillboardForm = ({ data }: { data: BillBoard | null }) => {
         onConfirm={onDelete}
       />
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4 w-full"
+        >
           <div className="flex flex-row justify-between">
             <FormField
               control={form.control}
-              name="imageUrl"
-              render={({ field }) => {
-                return (
-                  <FormItem className="">
-                    <FormLabel className="font-semibold">
-                      Background Image
-                    </FormLabel>
-                    <FormControl>
-                      <ImageUpload
-                        value={field.value ? [field.value] : []}
-                        disabled={loading}
-                        onChange={(url) => field.onChange(url)}
-                        onRemove={() => field.onChange("")}
-                      />
-                    </FormControl>
-                  </FormItem>
-                );
-              }}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="w-full">
+                  <FormLabel className="font-semibold">Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Name color (white, black, ...)"
+                      {...field}
+                      className="max-w-sm"
+                      disabled={loading}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             {data ? (
-              <Button variant="destructive" size="icon" type="button" onClick={() => setIsOpen(true)} >
-                <Trash/>
+              <Button
+                variant="destructive"
+                size="icon"
+                type="button"
+                onClick={() => setIsOpen(true)}
+              >
+                <Trash />
               </Button>
             ) : (
               <></>
@@ -154,17 +155,20 @@ const BillboardForm = ({ data }: { data: BillBoard | null }) => {
           </div>
           <FormField
             control={form.control}
-            name="label"
+            name="value"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-semibold">Label</FormLabel>
+                <FormLabel className="font-semibold">Value</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Billboard label"
-                    {...field}
-                    className="max-w-sm"
-                    disabled={loading}
-                  />
+                  <div className="flex flex-row gap-3 items-center">
+                    <Input
+                      placeholder="Hex color (#fff, #000000, ...)"
+                      {...field}
+                      className="max-w-sm"
+                      disabled={loading}
+                    />
+                    <input type="color" value={field.value} className="w-12 h-10 cursor-pointer picker-color rounded-sm px-[2px]" onChange={field.onChange}/>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -176,7 +180,7 @@ const BillboardForm = ({ data }: { data: BillBoard | null }) => {
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push(`/${params.storeId}/billboards`)}
+            onClick={() => router.push(`/${params.storeId}/colors`)}
             disabled={loading}
           >
             Cancel
@@ -187,4 +191,4 @@ const BillboardForm = ({ data }: { data: BillBoard | null }) => {
   );
 };
 
-export default BillboardForm;
+export default ColorForm;

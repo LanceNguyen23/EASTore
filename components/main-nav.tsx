@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, LayoutDashboard, LogOut, MinusSquare, Package2, Paintbrush2, ShoppingCart, Store, User } from "lucide-react";
+import { ChevronDown, LayoutDashboard, LogOut, MinusSquare, Package2, Paintbrush2, Ruler, ShoppingCart, Store, User } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import {
@@ -45,10 +45,16 @@ const MainNav = () => {
       active: pathname === `/${params.storeId}/categories`,
     },
     {
-      href: `/${params.storeId}/sizes&colors`,
-      label: "Sizes & Colors",
+      href: `/${params.storeId}/sizes`,
+      label: "Sizes",
+      icon: <Ruler size={17}/>,
+      active: pathname === `/${params.storeId}/sizes`,
+    },
+    {
+      href: `/${params.storeId}/colors`,
+      label: "Colors",
       icon: <Paintbrush2 size={17}/>,
-      active: pathname === `/${params.storeId}/sizes&colors`,
+      active: pathname === `/${params.storeId}/colors`,
     },
     {
       href: `/${params.storeId}/products`,

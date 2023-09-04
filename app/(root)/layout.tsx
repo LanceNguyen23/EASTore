@@ -10,7 +10,6 @@ export default async function SetupLayout({
 }) {
   const session = await getServerSession(authOptions);
   
-  console.log("2")
   if (!session?.user) {
     redirect("/sign-in");
   }
